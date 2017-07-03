@@ -8,6 +8,7 @@ class Vector():
 	def __init__(self, coordinates):
 
 		self.CANNOT_NORMALIZE_ZERO_VECTOR_MSG = 'cannot normalize the zero vector'
+		self.NO_UNIQUE_PARALLEL_COMPONENT_MSG = 'no unique parallel component'
 
 		try:
 			if not coordinates:
@@ -82,6 +83,31 @@ class Vector():
 				self.angle_with(v) == pi
 				)
 
+
+	def component_parallel_to(self, basis):
+		try:
+			u= basis.normalized()
+			weight = self.dot(u)
+
+			return u.times_scalar(weight)
+		except Exception as e:
+			if str(e) == self.CANNOT_NORMALIZE_ZERO_VECTOR_MSG:
+				raise Exception(self.NO_UNIQUE_PARALLEL_COMPONENT_MSG)
+			else:
+				raise e
+
+
+	def component_orthogonal_to(self, basis):
+		try:
+			projection = self.component_parallel_to(basis)
+			return self.minus(projection)
+		except Exception as e:
+			if str(e) == self.CANNOT_NORMALIZE_ZERO_VECTOR_MSG:
+				raise Exception(self.NO_UNIQUE_PARALLEL_COMPONENT_MSG)
+			else:
+				raise e
+
+
 	def __str__(self):
 		return "Vector: {}".format(self.coordinates)
 
@@ -152,18 +178,36 @@ class Vector():
 # print v.is_parallel_to(w)
 # print v.is_orthogonal_to(w)
 
-v = Vector([-2.029, 9.97, 4.172])
-w = Vector([-9.231, -6.639, -7.245])
-print v.is_parallel_to(w)
-print v.is_orthogonal_to(w)
+# v = Vector([-2.029, 9.97, 4.172])
+# w = Vector([-9.231, -6.639, -7.245])
+# print v.is_parallel_to(w)
+# print v.is_orthogonal_to(w)
 
 
-v = Vector([-2.328, -7.284, -1.214])
-w = Vector([-1.821, 1.072, -2.94])
-print v.is_parallel_to(w)
-print v.is_orthogonal_to(w)
+# v = Vector([-2.328, -7.284, -1.214])
+# w = Vector([-1.821, 1.072, -2.94])
+# print v.is_parallel_to(w)
+# print v.is_orthogonal_to(w)
 
-v = Vector([2.118, 4.827])
-w = Vector([0,0])
-print v.is_parallel_to(w)
-print v.is_orthogonal_to(w)
+# v = Vector([2.118, 4.827])
+# w = Vector([0,0])
+# print v.is_parallel_to(w)
+# print v.is_orthogonal_to(w)
+# 
+
+v = Vector([3.039, 1.879])
+w = Vector([0.825, 2.036])
+
+print v.component_parallel_to(v)
+
+# v = Vector([-9.88, -3.264, -8.159])
+# w = Vector([-2.155, -9.353, -9.473])
+
+# print v.component_orthogonal_to(v)
+
+# print "----------------------------------"
+
+# v = Vector([3.009, -6.172, 3.692, -2.51])
+# w = Vector([6.404, -9.144, 2.759, 8.718])
+# print v.component_parallel_to(v)
+# print v.component_orthogonal_to(v)
