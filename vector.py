@@ -9,6 +9,7 @@ class Vector():
 
 		self.CANNOT_NORMALIZE_ZERO_VECTOR_MSG = 'cannot normalize the zero vector'
 		self.NO_UNIQUE_PARALLEL_COMPONENT_MSG = 'no unique parallel component'
+		self.ONLY_DEFINED_IN_TWO_THREE_DIMS_MSG = 'only defined in 2 and 3 dimensions'
 
 		try:
 			if not coordinates:
@@ -106,6 +107,34 @@ class Vector():
 				raise Exception(self.NO_UNIQUE_PARALLEL_COMPONENT_MSG)
 			else:
 				raise e
+
+	def cross(self, v):
+		try:
+			x1, y1, z1 = self.coordinates;
+			x2, y2, z2 = v.coordinates;
+			new_coordinates = [
+				y1*z2 - y2*z1 ,
+				-(x1*z2 - x2*z1),
+				x1*y2 - x2*y1
+			] 
+			return Vector(new_coordinates)
+		except ValueError as e:
+			msg = str(e)
+			if msg == 'need more than 2 values to unpack':
+				self_embedded_in_R3 = Vector(self.coordinates + (0,))
+				v_embedded_in_R3 = Vector(v.coordinates + (0,))
+				return self_embedded_in_R3.cross(v_embedded_in_R3)
+			elif (msg == 'too many values to unpack' or msg == 'need more than 1 value o unpack'):
+				raise Exception(self.ONLY_DEFINED_IN_TWO_THREE_DIMS_MSG)
+			else:
+				raise e
+
+	def area_of_triabgle__with(self, v):
+		return self.area_of_parallelogram_with(v)
+
+	def area_of_parallelogram_with(self, v):
+		cross_product = self.cross(v)
+		return cross_product.magnitude()
 
 
 	def __str__(self):
