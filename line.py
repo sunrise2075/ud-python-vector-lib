@@ -42,6 +42,12 @@ class Line(object):
             else:
                 raise e
 
+    def is_parallel_to(self, ell):
+        n1 = self.normal_vector
+        n2 = ell.normal_vector
+
+        return n1.is_parallel_to(n2)
+
 
     def __str__(self):
 
