@@ -5,12 +5,12 @@ from vector import Vector
 getcontext().prec = 30
 
 
-class Line(object):
+class Plane(object):
 
     NO_NONZERO_ELTS_FOUND_MSG = 'No nonzero elements found'
 
     def __init__(self, normal_vector=None, constant_term=None):
-        self.dimension = 2
+        self.dimension = 3
 
         if not normal_vector:
             all_zeros = ['0']*self.dimension
@@ -30,77 +30,57 @@ class Line(object):
             c = self.constant_term
             basepoint_coords = ['0']*self.dimension
 
-            initial_index = Line.first_nonzero_index(n)
-            initial_coefficient = list(n.coordinates)[initial_index]
+            initial_index = Plane.first_nonzero_index(list(n.coordinates))
+            initial_coefficient = self.get_nth_coefficient(initial_index)
 
             basepoint_coords[initial_index] = c/initial_coefficient
             self.basepoint = Vector(basepoint_coords)
 
         except Exception as e:
-            if str(e) == Line.NO_NONZERO_ELTS_FOUND_MSG:
+            if str(e) == Plane.NO_NONZERO_ELTS_FOUND_MSG:
                 self.basepoint = None
             else:
                 raise e
 
-    def is_parallel_to(self, ell):
+    def is_parallel_to(self, p):
         n1 = self.normal_vector
-        n2 = ell.normal_vector
+        n2 = p.normal_vector
 
         return n1.is_parallel_to(n2)
 
-    def __eq__(self, ell):
+    def __eq__(self, p):
         """
             to de defined
         """
         if self.normal_vector.is_zero():
-            if not ell.normal_vector.is_zero():
+            if not p.normal_vector.is_zero():
                 return False
             else:
-                diff = self.constant_term - ell.constant_term
+                diff = self.constant_term - p.constant_term
                 return MyDecimal(diff).is_near_zero()
-        elif ell.normal_vector.is_zero():
+        elif p.normal_vector.is_zero():
             return False
 
-        if not self.is_parallel_to(ell):
+        if not self.is_parallel_to(p):
             return False
 
         x0 = self.basepoint
-        y0 = ell.basepoint
+        y0 = p.basepoint
         basepoint_diff = x0.minus(y0)
 
         n = self.normal_vector
 
         return basepoint_diff.is_orthogonal_to(n)
 
-    def intersection_with(self, ell):
-        try:
-            A, B = self.normal_vector.coordinates
-            C, D = ell.normal_vector.coordinates
-            k1 = self.constant_term
-            k2 = ell.constant_term
-
-            x_numerator = D*k1 - B*k2
-            y_numerator = -C*k1 + A*k2
-            one_over_denom =Decimal('1')/(A*D - B*C)
-
-            return Vector([x_numerator, y_numerator]).times_scalar(one_over_denom)
-
-        except ZeroDivisionError:
-            if self == ell:
-                return self
-            else:
-                return None
-
-
     def get_nth_coefficient(self, index):
+
         coefficient_list = list(self.normal_vector.coordinates)
         return coefficient_list[index]
 
 
-    def __str__(self):
+    def  __str__(self):
 
         num_decimal_places = 3
-
 
         def write_coefficient(coefficient, is_initial_term=False):
             coefficient = round(coefficient, num_decimal_places)
@@ -125,16 +105,9 @@ class Line(object):
         n = self.normal_vector
 
         try:
-
-            initial_index = Line.first_nonzero_index(n)
-
-            first_non_zero_el = list(n.coordinates)[initial_index]
-
-            terms = [
-                        write_coefficient(self.get_nth_coefficient(i) , is_initial_term=(i==initial_index)) + 'x_{}'.format(i+1)
-                        for i in range(self.dimension) if round(self.get_nth_coefficient(i), num_decimal_places) != 0
-            ]
-
+            initial_index = Plane.first_nonzero_index(n.coordinates)
+            terms = [write_coefficient(self.get_nth_coefficient(i), is_initial_term=(i==initial_index)) + 'x_{}'.format(i+1)
+                     for i in range(self.dimension) if round(self.get_nth_coefficient(i), num_decimal_places) != 0]
             output = ' '.join(terms)
 
         except Exception as e:
@@ -150,16 +123,13 @@ class Line(object):
 
         return output
 
-    """
-        find index of the first non-zero coefficient of the line expression
-    """
+
     @staticmethod
-    def first_nonzero_index(v):
-        iterable = list(v.coordinates)
+    def first_nonzero_index(iterable):
         for k, item in enumerate(iterable):
             if not MyDecimal(item).is_near_zero():
                 return k
-        raise Exception(Line.NO_NONZERO_ELTS_FOUND_MSG)
+        raise Exception(Plane.NO_NONZERO_ELTS_FOUND_MSG)
 
 
 class MyDecimal(Decimal):
@@ -167,42 +137,26 @@ class MyDecimal(Decimal):
         return abs(self) < eps
 
 
-line1 = Line(normal_vector=Vector(['4.046', '2.836']), constant_term='1.21')
-
-line2 = Line(normal_vector = Vector(['10.115', '7.09']), constant_term = '3.025')
-
-print "interection 1: ",  line1.intersection_with(line2)
-
-line1 = Line(normal_vector = Vector(['7.204', '3.182']), constant_term = '8.68')
-line2 = Line(normal_vector = Vector(['8.172', '4.114']), constant_term = '9.883')
-
-print "interection 2: ",  line1.intersection_with(line2)
-
-line1 = Line(normal_vector = Vector(['1.182', '5.562']), constant_term = '6.744')
-line2 = Line(normal_vector = Vector(['1.773', '8.343']), constant_term = '9.525')
-
-print "interection 3: ",  line1.intersection_with(line2)
 
 
+print "#  1."
+p1 = Plane(normal_vector= Vector(['-0.412', '3.806', '0.728']), constant_term='-3.46')
+p2 = Plane(normal_vector= Vector(['1.03', '-9.515', '-1.82']), constant_term= '8.65')
+print 'first pair of planes are parallel?:{}' .format(p1.is_parallel_to(p2))
+print 'first pair of planes are equal?:{}' .format(p1 == p2)
 
+print "#  2."
+p1 = Plane(normal_vector= Vector(['2.611', '5.528', '0.283']), constant_term='4.6')
+p2 = Plane(normal_vector= Vector(['7.715', '8.306', '5.342']), constant_term= '3.76')
+print 'second pair of planes are parallel?:{}' .format(p1.is_parallel_to(p2))
+print 'second pair of planes are equal?:{}' .format(p1 == p2)
 
+print "#  3."
+p3 = Plane(normal_vector= Vector(['-7.926', '8.625', '-7.217']), constant_term='-7.952')
+p4 = Plane(normal_vector= Vector(['-2.642', '2.875', '-2.404']), constant_term= '-2.443')
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+print 'third pair of planes are parallel?:{}' .format(p3.is_parallel_to(p4))
+print 'third pair of planes are equal?:{}' .format(p3 == p4)
 
 
 
