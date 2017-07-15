@@ -152,7 +152,7 @@ print 'second pair of planes are parallel?:{}' .format(p1.is_parallel_to(p2))
 print 'second pair of planes are equal?:{}' .format(p1 == p2)
 
 print "#  3."
-p3 = Plane(normal_vector= Vector(['-7.926', '8.625', '-7.217']), constant_term='-7.952')
+p3 = Plane(normal_vector= Vector(['-7.926', '8.625', '-7.212']), constant_term='-7.952')
 p4 = Plane(normal_vector= Vector(['-2.642', '2.875', '-2.404']), constant_term= '-2.443')
 
 print 'third pair of planes are parallel?:{}' .format(p3.is_parallel_to(p4))
