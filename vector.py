@@ -1,7 +1,7 @@
 from math import sqrt, acos, pi
 from decimal import Decimal, getcontext
 
-getcontext().prec = 15
+getcontext().prec = 30
 
 
 class Vector():
@@ -58,8 +58,9 @@ class Vector():
         try:
             u1 = self.normalized()
             u2 = v.normalized()
-
-            angle_in_radians = acos(u1.dot(u2))
+            # to avoid math domain error
+            dot_product = round(u1.dot(u2), 5)
+            angle_in_radians = acos(dot_product)
 
             if in_degrees:
                 degrees_per_radian = 180./pi
@@ -135,6 +136,14 @@ class Vector():
     def area_of_parallelogram_with(self, v):
         cross_product = self.cross(v)
         return cross_product.magnitude()
+
+    """
+        customised function to get element by index
+    """
+    def __getitem__(self, i):
+        ele_list = list(self.coordinates)
+
+        return ele_list[i]
 
     def __str__(self):
         return "Vector: {}".format(self.coordinates)
